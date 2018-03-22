@@ -4,8 +4,7 @@ import cz.skaut.bloudak.model.EthnicVector;
 import cz.skaut.bloudak.model.Player;
 import cz.skaut.bloudak.model.Team;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FriendsBroker {
@@ -34,12 +33,14 @@ public class FriendsBroker {
             double bestApproach = 0;
             for (Player p1 : playersPool) {
                 for (Player p2 : playersPool) {
-                    if (p1 != p2 && p1.getRating() == p2.getRating() && !p1.origin.equalsIgnoreCase(p2.origin)
+                    if (p1 != p2 &&
+                            Math.abs(p1.getRating() - p2.getRating()) < 1 &&
+                            !p1.origin.equalsIgnoreCase(p2.origin)
                             && p1.getTeam() != p2.getTeam() && Solver.canBeSwitched(p1, p2)) {
                         double d1Before = distance(origins, p1.getTeam().ethnicVector(origins), targetVector);
                         double d2Before = distance(origins, p2.getTeam().ethnicVector(origins), targetVector);
                         double d1After = distance(origins, afterVector(p1.getTeam(), p1, p2), targetVector);
-                        double d2After = distance(origins, afterVector(p1.getTeam(), p2, p1), targetVector);
+                        double d2After = distance(origins, afterVector(p2.getTeam(), p2, p1), targetVector);
                         if (d1Before + d2Before > d1After + d2After) {
                             double approach = (d1Before + d2Before) - (d1After + d2After);
                             if (approach > bestApproach) {
@@ -67,7 +68,7 @@ public class FriendsBroker {
         for (String origin : origins) {
             Double vd1 = v1.get(origin);
             Double vd2 = v2.get(origin);
-            sum += vd1 - vd2;
+            sum += Math.pow(vd1 - vd2, 2);
         }
         return Math.sqrt(sum);
     }
